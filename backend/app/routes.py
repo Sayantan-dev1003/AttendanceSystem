@@ -31,8 +31,10 @@ def signin():
     user = User.from_dict(user_data[0])  # Create User instance from Supabase data
 
     token = create_access_token(identity={'email': email, 'userid': user.id}, expires_delta=datetime.timedelta(days=1))
-
-    return jsonify({"message": "Login Successful", "token": token}), 200
+    
+    response = jsonify({"message": "Login Successful", "token": token})
+    response.set_cookie('token', token, httponly=True, secure=True, max_age=86400)
+    return response, 200
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
@@ -102,4 +104,12 @@ def signup():
 
     # Generate token for the new user
     token = create_access_token(identity={'email': email, 'userid': response.data[0]['id']}, expires_delta=datetime.timedelta(days=1))
-    return jsonify({"message": "Registration Successful", "token": token}), 201
+    response = jsonify({"message": "Registration Successful", "token": token})
+    response.set_cookie('token', token, httponly=True, secure=True, max_age=86400)
+    return response, 201
+
+@auth_bp.route('/logout', methods=['POST'])
+def logout():
+    response = jsonify({"message": "Logout Successful"})
+    response.set_cookie('token', '', expires=0)  # Clear the cookie
+    return response, 200
