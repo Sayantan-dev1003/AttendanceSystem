@@ -1,0 +1,8 @@
+opencv-python
+torch
+numpy
+facenet-pytorch
+scikit-learn
+flask  # If using Flask as the API framework
+fastapi  # If using FastAPI as the API framework (alternative to Flask)
+uvicorn  # ASGI server for FastAPI

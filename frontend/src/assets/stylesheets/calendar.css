@@ -1,0 +1,43 @@
+/* Custom Calendar Styles */
+.react-calendar {
+    width: 100%;
+    background: white;
+    padding: 10px;
+    border: none;
+    font-family: 'Arial', sans-serif;
+    border-radius: 8px;
+}
+
+/* Add rounded corners */
+.react-calendar__tile--now {
+    background: #ffc107 !important;
+    /* Highlight current date */
+    color: black;
+    border-radius: 8px;
+}
+
+/* Customize Selected Date */
+.react-calendar__tile--active {
+    background: #4CAF50 !important;
+    color: white !important;
+    border-radius: 8px;
+}
+
+/* Customize Weekday Headers */
+.react-calendar__month-view__weekdays {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Change Hover Effect */
+.react-calendar__tile:hover {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+/* Change weekend color */
+.react-calendar__tile abbr[title="Saturday"],
+.react-calendar__tile abbr[title="Sunday"] {
+    color: red;
+}
