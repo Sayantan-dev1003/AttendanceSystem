@@ -8,8 +8,11 @@ import os
 import cv2
 import numpy as np
 import torch
+import requests
 from facenet_pytorch import InceptionResnetV1, MTCNN
 from sklearn.preprocessing import normalize
+
+API_URL = "http://localhost:3000/mark-attendance"  # Change this to your actual API URL
 
 # Initialize MTCNN and InceptionResnetV1
 mtcnn = MTCNN(keep_all=True)
@@ -73,6 +76,7 @@ def recognize_faces(known_encodings, known_names, test_encodings, threshold=0.5)
 cap = cv2.VideoCapture(0)
 threshold = 0.5  # Adjusted threshold for better classification
 
+seen_names = set()
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -83,16 +87,26 @@ while cap.isOpened():
     
     if test_face_encodings and known_face_encodings:
         boxes, _ = mtcnn.detect(frame_rgb)
-        boxes = boxes if boxes is not None else []  # Fix to prevent NoneType error
+        boxes = boxes if boxes is not None else []  # Prevent NoneType error
 
         names = recognize_faces(np.array(known_face_encodings), known_face_names, test_face_encodings, threshold)
 
         for name, box in zip(names, boxes):
-            if box is not None:
+            # Ensure that the box is valid and the name is recognized
+            if box is not None and name in known_face_names and name not in seen_names:
                 x1, y1, x2, y2 = map(int, box)
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(frame, name, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-    
+
+                # Store only recognized names
+                seen_names.add(name)
+
+                # Send POST request to mark attendance (Uncomment if needed)
+                response = requests.post(API_URL, json={"name": name})
+                print(f"Response: {response.json()}")   
+
+                print(f"Name recognized: {name}")
+
     cv2.imshow('Face Recognition', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

@@ -265,6 +265,88 @@ app.post("/api/updateUser", authenticateToken, async (req, res) => {
     }
 });
 
+app.post("/mark-attendance", async (req, res) => {
+    try {
+        const { name } = req.body;
+        if (!name) {
+            return res.status(400).json({ error: "User name is required" });
+        }
+
+        // ✅ Fetch correct employee_id from users table
+        const { data: users, error: userError } = await supabase
+            .from("users")
+            .select("employee_id, name") // ✅ FIXED: Select correct column
+            .eq("name", name)
+            .limit(1);
+
+        if (userError) {
+            console.error("Error fetching user:", userError);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+
+        if (!users || users.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const employeeId = users[0].employee_id; // ✅ FIXED: Get employee_id
+        if (!employeeId) {
+            return res.status(400).json({ error: "Employee ID not found" });
+        }
+
+        const currentDate = new Date().toISOString().split("T")[0]; // Extract YYYY-MM-DD
+        const currentTime = new Date().toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour12: false });
+
+        // ✅ Check if user has already checked in today
+        const { data: attendance, error: attendanceError } = await supabase
+            .from("attendance")
+            .select("*")
+            .eq("employee_id", employeeId)
+            .eq("date", currentDate)
+            .limit(1);
+
+        if (attendanceError) {
+            console.error("Error checking attendance:", attendanceError);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+
+        if (attendance.length === 0) {
+            // ✅ First check-in: Insert new attendance record
+            const { error: insertError } = await supabase.from("attendance").insert([
+                {
+                    employee_id: employeeId, // ✅ FIXED: Correct key
+                    date: currentDate,
+                    check_in_time: currentTime,
+                    check_out_time: null,
+                    status: "Present",
+                },
+            ]);
+
+            if (insertError) {
+                console.error("Error inserting attendance:", insertError);
+                return res.status(500).json({ error: "Failed to record attendance" });
+            }
+
+            return res.status(200).json({ message: "Check-in recorded successfully" });
+        } else {
+            // ✅ Already checked in: Update check-out time
+            const { error: updateError } = await supabase
+                .from("attendance")
+                .update({ check_out_time: currentTime })
+                .eq("employee_id", employeeId)
+                .eq("date", currentDate);
+
+            if (updateError) {
+                console.error("Error updating check-out time:", updateError);
+                return res.status(500).json({ error: "Failed to update check-out time" });
+            }
+
+            return res.status(200).json({ message: "Check-out recorded successfully" });
+        }
+    } catch (error) {
+        console.error("Error in attendance route:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 
 // User logout
