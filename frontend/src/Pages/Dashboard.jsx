@@ -11,8 +11,8 @@ const Dashboard = () => {
         <div className='w-full'>
           <NavBar />
           <div className='w-full flex justify-start items-start gap-10 px-12'>
-            <div className='w-1/2 flex flex-col gap-2'>
-              <div className=' shadow rounded-lg p-5 cursor-pointer hover:bg-blue-50 transition'>
+            <div className='w-1/2 flex flex-col gap-6'>
+              <div className=' shadow rounded-lg cursor-pointer transition'>
                 <WelcomeNote />
                 <DataTile />
               </div>

@@ -18,8 +18,10 @@ const WelcomeNote = () => {
     }, []);
 
     return (
-        <div className="w-full">
-            <h1 className="text-2xl montserrat font-semibold">Welcome, {name}</h1>
+        <div className="w-full flex flex-col items-center px-4">
+            <h1 className="text-2xl font-bold text-gray-800 montserrat">
+                Welcome, {name} 👋
+            </h1>
         </div>
     );
 };

@@ -18,16 +18,17 @@ const NavBar = () => {
                 setName(response.data.name);
                 const photoResponse = await axios.get('/api/user/profilePhoto');
                 setProfilePhoto(photoResponse.data.profilePhoto);
+                console.log(profilePhoto);
             } catch (error) {
                 console.error('Error fetching name or profile photo:', error);
             }
         };
 
         fetchData();
-    }, []);
+    }, [profilePhoto]);
 
     const handleLogout = () => {
-        axios.get('/logout')
+        axios.post('/logout')
             .then(response => {
                 if (response.status === 200) {
                     navigate('/');
@@ -41,7 +42,7 @@ const NavBar = () => {
     return (
         <div className="w-full flex justify-end items-center px-6 py-4 bg-white gap-3 poppins relative">
             <span>{name}</span>
-            <div className="w-8 h-8 rounded-full" style={{ backgroundImage: `url(/uploads/${profilePhoto})`, backgroundSize: 'cover' }} />
+            <div className="w-8 h-8 rounded-full" style={{ backgroundImage: `url(${profilePhoto ? `/uploads/${profilePhoto}` : ''})`, backgroundSize: 'cover' }} />
             <div className="cursor-pointer" onClick={() => setIsDropdownOpen(!isDropdownOpen)}><FontAwesomeIcon icon={faEllipsisV} /></div>
             {isDropdownOpen && (
                 <div className="absolute top-full right-0 mt-1 w-48 bg-white shadow-lg rounded-md">

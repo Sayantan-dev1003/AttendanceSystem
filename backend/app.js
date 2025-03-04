@@ -189,13 +189,20 @@ app.get("/api/user/profilePhoto", authenticateToken, async (req, res) => {
             .select("profilePhoto")
             .eq("email", email)
             .limit(1);
+        
+        console.log(data)
 
         if (error) {
             console.error("Error fetching profile photo:", error);
-            res.status(500).json({ error: "Internal Server Error" });
-        } else {
-            res.status(200).json({ profilePhoto: data[0].profilePhoto });
+            return res.status(500).json({ error: "Internal Server Error" });
         }
+
+        if (!data || data.length === 0) {
+            console.error("Profile photo not found for user:", email);
+            return res.status(404).json({ error: "Profile photo not found" });
+        }
+
+        res.status(200).json({ profilePhoto: data[0].profilePhoto });
     } catch (error) {
         console.error("Error fetching profile photo:", error);
         res.status(500).json({ error: "Internal Server Error" });
@@ -348,6 +355,37 @@ app.post("/mark-attendance", async (req, res) => {
     }
 });
 
+app.get("/api/user/attendance", authenticateToken, async (req, res) => {
+    try {
+        const { email } = req.user;
+        const { data, error } = await supabase
+            .from("users")
+            .select("employee_id")
+            .eq("email", email)
+            .limit(1);
+
+        if (error) {
+            console.error("Error fetching employee id:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        } else {
+            const employeeId = data[0].employee_id;
+            const { data: attendanceData, error: attendanceError } = await supabase
+                .from("attendance")
+                .select("*")
+                .eq("employee_id", employeeId);
+
+            if (attendanceError) {
+                console.error("Error fetching attendance:", attendanceError);
+                res.status(500).json({ error: "Internal Server Error" });
+            } else {
+                res.status(200).json(attendanceData);
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching attendance:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 // User logout
 app.post("/logout", (req, res) => {
