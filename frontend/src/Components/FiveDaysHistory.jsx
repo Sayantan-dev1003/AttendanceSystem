@@ -32,7 +32,13 @@ const FiveDaysHistory = () => {
     
         fetchData();
     }, []);
-    
+
+    const formatDate = (isoString) => {
+        if (!isoString) return "—";
+        const currentDate = new Date(isoString)
+          .toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: 'numeric', month: 'long', day: 'numeric' });
+        return currentDate;
+      };    
 
     return (
         <div className="w-full flex justify-center items-start openSans">
@@ -42,10 +48,10 @@ const FiveDaysHistory = () => {
                     {attendanceData.map((attendance) => (
                         <div key={attendance.id} className="w-full bg-blue-50 flex justify-between items-center py-2 px-4 rounded-md hover:transition hover:scale-105 hover:bg-blue-100">
                             <div className="w-2/3 flex flex-col items-start justify-start">
-                                <li className="font-semibold text-lg">{attendance.date}</li>
+                                <li className="font-semibold text-lg">{formatDate(attendance.date)}</li>
                                 <div className="flex">
                                     <span className="text-xs font-light">{attendance.check_in_time}</span>
-                                    <span className="text-xs font-light"> - </span>
+                                    <span className="text-xs font-light">&nbsp;-&nbsp;</span>
                                     <span className="text-xs font-light">{attendance.check_out_time ? attendance.check_out_time : 'N/A'}</span>
                                 </div>
                             </div>

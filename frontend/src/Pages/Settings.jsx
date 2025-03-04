@@ -5,11 +5,12 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("johndoe@example.com");
-  const [phone, setPhone] = useState("123-456-7890");
-  const [department, setDepartment] = useState("IT");
-  const [designation, setDesignation] = useState("Software Engineer");
+  const [name, setName] = useState("");
+  const [empID, setEmpID] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [department, setDepartment] = useState("");
+  const [designation, setDesignation] = useState("");
   const [profilePic, setProfilePic] = useState(null);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -19,8 +20,9 @@ const Settings = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get('/api/user');
-        const { name, email, phone, department, designation, profilePhoto } = response.data;
+        const { name, employee_id, email, phone, department, designation, profilePhoto } = response.data;
         setName(name);
+        setEmpID(employee_id);
         setEmail(email);
         setPhone(phone);
         setDepartment(department);
@@ -74,7 +76,7 @@ const Settings = () => {
 
   return (
     <div className="w-full flex flex-col justify-start items-start p-6 poppins">
-      <h2 className="text-2xl font-semibold mb-4 montserrat">Settings</h2>
+      <h2 className="text-3xl font-bold text-[#00416A] mb-4 montserrat">Settings</h2>
       
       <div className="flex gap-10 items-end w-full justify-between bg-[#daf1ff] rounded-2xl p-4 mb-10 shadow-lg">
         <div className="flex gap-10 items-center w-full justify-start">
@@ -91,6 +93,7 @@ const Settings = () => {
           </div>
           <div className="poppins">
               <p className="text-3xl font-semibold">{name} <span className="text-xs italic font-light text-gray-500">{designation}</span></p>
+              <p className="text-sm font-light text-gray-500">{empID}</p>
               <p className="text-sm font-light text-gray-500">{email}</p>
               <p className="text-sm font-light text-gray-500">{phone}</p>
           </div>
@@ -123,7 +126,7 @@ const Settings = () => {
         </div>
       </div>
 
-      <div className="w-[37.7vw] mb-4 text-gray-700">
+      <div className="w-[39.2vw] mb-4 text-gray-700">
         <label className="block font-medium">Phone</label>
         <input
           type="text"

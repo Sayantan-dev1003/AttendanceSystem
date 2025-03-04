@@ -38,16 +38,13 @@ const History = () => {
   const formatDate = (isoString) => {
     if (!isoString) return "—";
     const currentDate = new Date(isoString)
-      .toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" })
-      .split("/")
-      .reverse()
-      .join("-");
+      .toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: 'numeric', month: 'long', day: 'numeric' });
     return currentDate;
   };
 
   // Function to format time as HH:MM:SS
   const formatTime = (isoString) => {
-    if (!isoString) return "—"; // Handle missing values
+    if (!isoString) return "—";
     const date = new Date();
     const [hours, minutes, seconds] = isoString.split(":").map(Number); // Extract time parts
     const newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes, seconds);
@@ -60,16 +57,16 @@ const History = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Attendance History</h2>
+      <h2 className="text-3xl font-bold text-[#00416A] mb-4 montserrat">Attendance History</h2>
 
       {loading ? (
         <p className="text-center text-gray-500">Loading...</p>
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto openSans rounded-lg">
           <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-            <thead className="bg-gray-800 text-white">
+            <thead className="bg-[#00416A] text-white">
               <tr>
                 <th className="py-3 px-4 text-left">Date</th>
                 <th className="py-3 px-4 text-left">Check-In Time</th>
@@ -80,7 +77,7 @@ const History = () => {
             <tbody>
               {attendance.length > 0 ? (
                 attendance.map((entry, index) => (
-                  <tr key={index} className="border-b hover:bg-gray-100">
+                  <tr key={index} className={`border-b border-b-gray-400 hover:bg-gray-100 ${index === attendance.length - 1 ? "border-b-0" : ""}`}>
                     <td className="py-3 px-4">{formatDate(entry.date)}</td>
                     <td className="py-3 px-4">{formatTime(entry.check_in_time)}</td>
                     <td className="py-3 px-4">{entry.check_out_time ? formatTime(entry.check_out_time) : "—"}</td>

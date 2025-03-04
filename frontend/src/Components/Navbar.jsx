@@ -42,7 +42,7 @@ const NavBar = () => {
     return (
         <div className="w-full flex justify-end items-center px-6 py-4 bg-white gap-3 openSans relative">
             <span>{name}</span>
-            <div className="w-8 h-8 rounded-full" style={{ backgroundImage: `url(${profilePhoto ? `/uploads/${profilePhoto}` : ''})`, backgroundSize: 'cover' }} />
+            <img src={profilePhoto ? `/uploads/${profilePhoto}` : "https://via.placeholder.com/100"} alt="Profile" className="w-8 h-8 rounded-full bg-cover" />
             <div className="cursor-pointer" onClick={() => setIsDropdownOpen(!isDropdownOpen)}><FontAwesomeIcon icon={faEllipsisV} /></div>
             {isDropdownOpen && (
                 <div className="absolute top-full right-0 mt-1 w-48 bg-white shadow-lg rounded-md">
