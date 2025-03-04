@@ -4,7 +4,7 @@
     background: white;
     padding: 10px;
     border: none;
-    font-family: 'Arial', sans-serif;
+    font-family: "Open Sans", serif;
     border-radius: 8px;
 }
 
@@ -13,21 +13,35 @@
     background: #ffc107 !important;
     /* Highlight current date */
     color: black;
+    font-weight: bold;
     border-radius: 8px;
 }
+
+.react-calendar__navigation__label__labelText {
+    font-size: 1em;
+    font-weight: bold;
+    font-family: "Montserrat", serif;
+}   
 
 /* Customize Selected Date */
 .react-calendar__tile--active {
     background: #4CAF50 !important;
     color: white !important;
+    font-weight: bold;
     border-radius: 8px;
+    transition: all 0.3s ease-in-out;
 }
 
 /* Customize Weekday Headers */
-.react-calendar__month-view__weekdays {
+.react-calendar__month-view__weekdays__weekday{
     text-transform: uppercase;
     font-weight: bold;
-    color: #333;
+    color: #444;
+    font-size: 0.8rem;
+}
+
+.react-calendar__month-view__weekdays__weekday > abbr {
+    text-decoration: none;
 }
 
 /* Change Hover Effect */
@@ -36,8 +50,37 @@
     border-radius: 10px;
 }
 
-/* Change weekend color */
-.react-calendar__tile abbr[title="Saturday"],
-.react-calendar__tile abbr[title="Sunday"] {
-    color: red;
+.react-calendar__month-view__days__day{
+    color: black;
+    font-weight: 500;
+}
+
+.react-calendar__month-view__days__day--weekend {
+    color: #d9534f; /* Soft red */
+}
+
+/* Disabled Dates */
+.react-calendar__tile:disabled {
+    background: #f9f9f9;
+    color: #bbb;
+    cursor: not-allowed;
+}
+
+/* Navigation Buttons */
+.react-calendar__navigation button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #333;
+    transition: color 0.2s;
+    padding: 5px;
+}
+
+/* Navigation Arrows */
+.react-calendar__navigation button:disabled {
+    color: #ccc;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+    color: #9d9d9d;
 }

@@ -35,10 +35,10 @@ const FiveDaysHistory = () => {
     
 
     return (
-        <div className="w-full flex justify-center items-start">
+        <div className="w-full flex justify-center items-start openSans">
             <div className="w-full p-8 rounded-lg shadow flex justify-center items-start flex-col gap-4 cursor-pointer transition">
                 <h2 className="font-semibold text-2xl montserrat">Last 5 Days Attendance</h2>
-                <ul className="w-full flex flex-col gap-2 poppins text-sm">
+                <ul className="w-full flex flex-col gap-2 text-sm">
                     {attendanceData.map((attendance) => (
                         <div key={attendance.id} className="w-full bg-blue-50 flex justify-between items-center py-2 px-4 rounded-md hover:transition hover:scale-105 hover:bg-blue-100">
                             <div className="w-2/3 flex flex-col items-start justify-start">

@@ -60,7 +60,7 @@ const DataTile = () => {
   const monthName = new Date().toLocaleString("default", { month: "long" });
 
   return (
-    <div className="w-full flex flex-col justify-between items-center bg-white p-4 rounded-xl shadow-md">
+    <div className="w-full flex flex-col justify-between items-center bg-white p-4 rounded-xl shadow-md openSans">
       <h2 className="text-lg font-semibold text-gray-700">
         Attendance Summary of {monthName}
       </h2>

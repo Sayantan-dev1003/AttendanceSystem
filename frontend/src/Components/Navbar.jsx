@@ -40,7 +40,7 @@ const NavBar = () => {
     };
 
     return (
-        <div className="w-full flex justify-end items-center px-6 py-4 bg-white gap-3 poppins relative">
+        <div className="w-full flex justify-end items-center px-6 py-4 bg-white gap-3 openSans relative">
             <span>{name}</span>
             <div className="w-8 h-8 rounded-full" style={{ backgroundImage: `url(${profilePhoto ? `/uploads/${profilePhoto}` : ''})`, backgroundSize: 'cover' }} />
             <div className="cursor-pointer" onClick={() => setIsDropdownOpen(!isDropdownOpen)}><FontAwesomeIcon icon={faEllipsisV} /></div>
