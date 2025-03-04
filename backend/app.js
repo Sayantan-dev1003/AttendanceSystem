@@ -425,6 +425,39 @@ app.get("/api/attendance", async (req, res) => {
     }
 });
 
+app.get("/api/admin/attendance/:employeeId", async (req, res) => {
+    try {
+        const { data: attendanceData, error: attendanceError } = await supabase
+            .from("attendance")
+            .select("*")
+            .eq("employee_id", req.params.employeeId);
+
+        if (attendanceError) {
+            console.error("Error fetching attendance:", attendanceError);
+            res.status(500).json({ error: "Internal Server Error" });
+        } else {
+            const { data: userData, error: userError } = await supabase
+                .from("users")
+                .select("name")
+                .eq("employee_id", req.params.employeeId);
+
+            if (userError) {
+                console.error("Error fetching user data:", userError);
+                res.status(500).json({ error: "Internal Server Error" });
+            } else {
+                const attendanceWithUserData = attendanceData.map(attendanceEntry => {
+                    const user = userData[0]; // Assuming there's only one user with the given employee ID
+                    return { ...attendanceEntry, name: user.name };
+                });
+                res.status(200).json(attendanceWithUserData);
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching attendance:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 // User logout
 app.post("/logout", (req, res) => {
     res.cookie("token", "", { httpOnly: true, expires: new Date(0) });

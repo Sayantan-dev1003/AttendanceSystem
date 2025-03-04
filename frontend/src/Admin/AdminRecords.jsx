@@ -57,7 +57,7 @@ const AdminRecords = () => {
   };
 
   const handleRowClick = (employeeId) => {
-    navigate(`/userDashboard?${employeeId}`);
+    navigate(`/userDashboard/${employeeId}`);
   };
 
   return (
