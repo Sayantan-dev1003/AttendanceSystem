@@ -212,7 +212,7 @@ app.get("/api/user", authenticateToken, async (req, res) => {
         const { email } = req.user;
         const { data, error } = await supabase
             .from("users")
-            .select("name, email, phone, department, designation, profilePhoto")
+            .select("name, employee_id, email, phone, department, designation, profilePhoto")
             .eq("email", email)
             .limit(1);
 
@@ -314,6 +314,13 @@ app.post("/mark-attendance", async (req, res) => {
             return res.status(500).json({ error: "Internal Server Error" });
         }
 
+        let status = "Absent";
+        if (currentTime >= "09:00:00" && currentTime <= "10:30:00") {
+            status = "Present";
+        } else if (currentTime > "10:30:00" && currentTime <= "14:30:00") {
+            status = "Late";
+        }
+
         if (attendance.length === 0) {
             // ✅ First check-in: Insert new attendance record
             const { error: insertError } = await supabase.from("attendance").insert([
@@ -322,7 +329,7 @@ app.post("/mark-attendance", async (req, res) => {
                     date: currentDate,
                     check_in_time: currentTime,
                     check_out_time: null,
-                    status: "Present",
+                    status: status,
                 },
             ]);
 
@@ -336,7 +343,7 @@ app.post("/mark-attendance", async (req, res) => {
             // ✅ Already checked in: Update check-out time
             const { error: updateError } = await supabase
                 .from("attendance")
-                .update({ check_out_time: currentTime })
+                .update({ check_out_time: currentTime, status: status })
                 .eq("employee_id", employeeId)
                 .eq("date", currentDate);
 
