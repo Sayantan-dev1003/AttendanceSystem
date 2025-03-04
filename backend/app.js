@@ -190,8 +190,6 @@ app.get("/api/user/profilePhoto", authenticateToken, async (req, res) => {
             .eq("email", email)
             .limit(1);
         
-        console.log(data)
-
         if (error) {
             console.error("Error fetching profile photo:", error);
             return res.status(500).json({ error: "Internal Server Error" });
@@ -300,7 +298,7 @@ app.post("/mark-attendance", async (req, res) => {
             return res.status(400).json({ error: "Employee ID not found" });
         }
 
-        const currentDate = new Date().toISOString().split("T")[0]; // Extract YYYY-MM-DD
+        const currentDate = new Date().toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" }).split("/").reverse().join("-");
         const currentTime = new Date().toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour12: false });
 
         // ✅ Check if user has already checked in today
