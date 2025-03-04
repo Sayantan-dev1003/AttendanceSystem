@@ -30,7 +30,7 @@ const SignIn = () => {
                 const data = await response.json();
                 console.log(data.message);
                 if (data.designation.toLowerCase() === "admin") {
-                    navigate("/dashboardAdmin");
+                    navigate("/records");
                 } else {
                     navigate("/dashboard");
                 }
