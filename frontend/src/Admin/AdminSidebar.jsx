@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AdminSidebar = () => {
-    const [activeLink, setActiveLink] = useState('Dashboard');
+    const [activeLink, setActiveLink] = useState('records');
     const navigate = useNavigate();
 
     const handleLinkClick = (link) => {
