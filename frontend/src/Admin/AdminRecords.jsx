@@ -76,6 +76,8 @@ const AdminRecords = () => {
                 <th className="py-3 px-4 text-center">Profile Photo</th>
                 <th className="py-3 px-4 text-center">Employee ID</th>
                 <th className="py-3 px-4 text-center">Name</th>
+                <th className="py-3 px-4 text-center">Department</th>
+                <th className="py-3 px-4 text-center">Designation</th>
                 <th className="py-3 px-4 text-center">Date</th>
                 <th className="py-3 px-4 text-center">Check-In Time</th>
                 <th className="py-3 px-4 text-center">Check-Out Time</th>
@@ -90,6 +92,8 @@ const AdminRecords = () => {
                     "><img src={entry.profilePhoto ? `/uploads/${entry.profilePhoto}` : "https://via.placeholder.com/100"} alt="Profile" className="w-8 h-8 rounded-full bg-cover text-center" /></td>
                     <td className="py-3 px-4 text-center">{entry.employee_id}</td>
                     <td className="py-3 px-4 text-center">{entry.name}</td>
+                    <td className="py-3 px-4 text-center">{entry.department}</td>
+                    <td className="py-3 px-4 text-center">{entry.designation}</td>
                     <td className="py-3 px-4 text-center">{formatDate(entry.date)}</td>
                     <td className="py-3 px-4 text-center">{formatTime(entry.check_in_time)}</td>
                     <td className="py-3 px-4 text-center">{entry.check_out_time ? formatTime(entry.check_out_time) : "—"}</td>

@@ -506,7 +506,7 @@ app.get("/api/attendance", async (req, res) => {
             const employeeIds = attendanceData.map(entry => entry.employee_id);
             const { data: userData, error: userError } = await supabase
                 .from("users")
-                .select("profilePhoto, employee_id, name")
+                .select("profilePhoto, employee_id, name, designation, department")
                 .in("employee_id", employeeIds);
 
             if (userError) {
