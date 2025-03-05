@@ -228,47 +228,113 @@ app.get("/api/user", authenticateToken, async (req, res) => {
     }
 });
 
-app.post("/api/updateProfilePhoto", authenticateToken, async (req, res) => {
+app.post("/api/updateProfilePhoto", authenticateToken, upload.single("profilePhoto"), async (req, res) => {
     try {
         const { email } = req.user;
-        const { profilePhoto } = req.body;
-        const { data, error } = await supabase
+
+        // Fetch user details to get the old profile photo
+        const { data: userData, error: userError } = await supabase
             .from("users")
-            .update({ profilePhoto })
+            .select("name, profilePhoto")
+            .eq("email", email)
+            .single();
+
+        if (userError || !userData) {
+            console.error("Error fetching user data:", userError);
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const userName = userData.name;
+        const oldPhoto = userData.profilePhoto;
+        const uploadsDir = path.join(__dirname, "/uploads");
+
+        // Delete old profile photo if it exists
+        if (oldPhoto) {
+            const oldPhotoPath = path.join(uploadsDir, oldPhoto);
+            if (fs.existsSync(oldPhotoPath)) {
+                fs.unlinkSync(oldPhotoPath);
+            }
+        }
+
+        // Save new profile photo with the user's name
+        const fileExtension = path.extname(req.file.originalname);
+        const newPhotoName = `${userName}${fileExtension}`;
+        const newPhotoPath = path.join(uploadsDir, newPhotoName);
+
+        // Rename uploaded file
+        fs.renameSync(req.file.path, newPhotoPath);
+
+        // Update new photo name in Supabase
+        const { error: updateError } = await supabase
+            .from("users")
+            .update({ profilePhoto: newPhotoName })
             .eq("email", email);
 
-        if (error) {
-            console.error("Error updating profile photo:", error);
-            res.status(500).json({ error: "Internal Server Error" });
-        } else {
-            res.status(200).json({ message: "Profile photo updated successfully" });
+        if (updateError) {
+            console.error("Error updating profile photo in database:", updateError);
+            return res.status(500).json({ error: "Internal Server Error" });
         }
+
+        res.status(200).json({ message: "Profile photo updated successfully", profilePhoto: newPhotoName });
     } catch (error) {
-        console.error("Error updating profile photo:", error);
+        console.error("Unexpected error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
-app.post("/api/updateUser", authenticateToken, async (req, res) => {
+app.patch("/api/users/update", authenticateToken, async (req, res) => {
     try {
         const { email } = req.user;
         const { name, phone, oldPassword, newPassword } = req.body;
-        const { data, error } = await supabase
+
+        // Fetch user details
+        const { data: userData, error: userError } = await supabase
             .from("users")
-            .update({ name, phone })
+            .select("password")
+            .eq("email", email)
+            .single();
+
+        if (userError || !userData) {
+            console.error("Error fetching user data:", userError);
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        let updateFields = { name, phone };
+
+        // If the user wants to change the password
+        if (oldPassword && newPassword) {
+            // Decrypt the stored password
+            const isMatch = await bcrypt.compare(oldPassword, userData.password);
+            if (!isMatch) {
+                return res.status(401).json({ error: "Old password is incorrect" });
+            }
+
+            // If old password is correct, update with new password
+            updateFields.password = await hashPassword(newPassword);
+        }
+
+        // Update user details
+        const { error: updateError } = await supabase
+            .from("users")
+            .update(updateFields)
             .eq("email", email);
 
-        if (error) {
-            console.error("Error updating user data:", error);
-            res.status(500).json({ error: "Internal Server Error" });
-        } else {
-            res.status(200).json({ message: "User data updated successfully" });
+        if (updateError) {
+            console.error("Error updating user data:", updateError);
+            return res.status(500).json({ error: "Internal Server Error" });
         }
+
+        res.status(200).json({ message: "User details updated successfully" });
     } catch (error) {
-        console.error("Error updating user data:", error);
+        console.error("Unexpected error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+async function hashPassword(password) {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+}
 
 app.post("/mark-attendance", async (req, res) => {
     try {

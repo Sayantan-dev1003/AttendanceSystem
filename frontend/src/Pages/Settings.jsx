@@ -38,30 +38,47 @@ const Settings = () => {
 
   const handleProfilePicChange = (event) => {
     const file = event.target.files[0];
+
     if (file) {
-      setProfilePic(URL.createObjectURL(file));
-      // Assuming there's an API endpoint to update profile picture
-      axios.post('/api/updateProfilePhoto', { profilePic: URL.createObjectURL(file) })
+        const formData = new FormData();
+        formData.append("profilePhoto", file);
+
+        axios.post("/api/updateProfilePhoto", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
         .then(response => {
-          console.log("Profile picture updated successfully:", response.data);
+            console.log("Profile picture updated successfully:", response.data);
+            alert("Profile picture updated successfully!");
         })
         .catch(error => {
-          console.error("Error updating profile picture:", error);
+            console.error("Error updating profile picture:", error);
+            alert("Failed to update profile picture.");
         });
     }
-  };
+};
+
 
   const handleSaveChanges = () => {
-    // Assuming there's an API endpoint to update user details
-    axios.post('/api/updateUser', { name, email, phone, oldPassword, newPassword })
+    const updateData = { name, phone };
+
+    if (oldPassword && newPassword) {
+      updateData.oldPassword = oldPassword;
+      updateData.newPassword = newPassword;
+    }
+
+    axios.patch("/api/users/update", updateData)
       .then(response => {
         alert("Changes saved successfully!");
         console.log("User details updated successfully:", response.data);
       })
       .catch(error => {
         console.error("Error saving changes:", error);
+        alert(error.response?.data?.error || "Failed to update user details.");
       });
   };
+
 
   const handleLogout = () => {
     axios.post('/logout')
@@ -77,7 +94,7 @@ const Settings = () => {
   return (
     <div className="w-full flex flex-col justify-start items-start p-6 poppins">
       <h2 className="text-3xl font-bold text-[#00416A] mb-4 montserrat">Settings</h2>
-      
+
       <div className="flex gap-10 items-end w-full justify-between bg-[#daf1ff] rounded-2xl p-4 mb-10 shadow-lg">
         <div className="flex gap-10 items-center w-full justify-start">
           <div>
@@ -92,10 +109,10 @@ const Settings = () => {
             </div>
           </div>
           <div className="poppins">
-              <p className="text-3xl font-semibold">{name} <span className="text-xs italic font-light text-gray-500">{designation}</span></p>
-              <p className="text-sm font-light text-gray-500">{empID}</p>
-              <p className="text-sm font-light text-gray-500">{email}</p>
-              <p className="text-sm font-light text-gray-500">{phone}</p>
+            <p className="text-3xl font-semibold">{name} <span className="text-xs italic font-light text-gray-500">{designation}</span></p>
+            <p className="text-sm font-light text-gray-500">{empID}</p>
+            <p className="text-sm font-light text-gray-500">{email}</p>
+            <p className="text-sm font-light text-gray-500">{phone}</p>
           </div>
         </div>
         <div className="w-[10vw] flex justify-end items-end">

@@ -58,8 +58,7 @@ const FiveDaysHistory = () => {
                                 </div>
                             </div>
                             <div className="flex gap-2 items-center justify-center">
-                                <p className={`text-${attendance.status === 'Present' ? 'green' : attendance.status === 'Late' ? 'yellow' : 'red'}-500`}>{attendance.status}</p>
-                                <p className={`bg-${attendance.status === 'Present' ? 'green' : attendance.status === 'Late' ? 'yellow' : 'red'}-500 rounded-full w-2 h-2`}></p>
+                                <p className={`font-medium text-${attendance.status === 'Present' ? 'green' : attendance.status === 'Late' ? 'yellow' : 'red'}-500`}>{attendance.status}</p>
                             </div>
                         </div>
                     ))}
