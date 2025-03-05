@@ -360,7 +360,7 @@ app.post("/mark-attendance", async (req, res) => {
     }
 });
 
-app.get("/api/user/attendance", authenticateToken, async (req, res) => {
+app.get("/api/user/history", authenticateToken, async (req, res) => {
     try {
         const { email } = req.user;
         const { data, error } = await supabase
@@ -377,6 +377,41 @@ app.get("/api/user/attendance", authenticateToken, async (req, res) => {
             const { data: attendanceData, error: attendanceError } = await supabase
                 .from("attendance")
                 .select("*")
+                .eq("employee_id", employeeId);
+
+            if (attendanceError) {
+                console.error("Error fetching attendance:", attendanceError);
+                res.status(500).json({ error: "Internal Server Error" });
+            } else {
+                res.status(200).json(attendanceData);
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching attendance:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+app.get("/api/user/attendance", authenticateToken, async (req, res) => {
+    try {
+        const { email } = req.user;
+        const { data, error } = await supabase
+            .from("users")
+            .select("employee_id")
+            .eq("email", email)
+            .limit(1);
+
+        if (error) {
+            console.error("Error fetching employee id:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        } else {
+            const employeeId = data[0].employee_id;
+            const currentDate = new Date();
+            const fiveDaysAgo = new Date(currentDate.getTime() - 5 * 24 * 60 * 60 * 1000);
+            const { data: attendanceData, error: attendanceError } = await supabase
+                .from("attendance")
+                .select("*")
+                .gte("date", fiveDaysAgo.toLocaleDateString("en-US", { timeZone: "Asia/Kolkata" }))
                 .eq("employee_id", employeeId);
 
             if (attendanceError) {

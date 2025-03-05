@@ -8,7 +8,7 @@ const History = () => {
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
-        const response = await fetch("/api/user/attendance", {
+        const response = await fetch("/api/user/history", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
