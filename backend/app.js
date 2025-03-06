@@ -495,36 +495,60 @@ app.get("/api/user/attendance", authenticateToken, async (req, res) => {
 
 app.get("/api/attendance", async (req, res) => {
     try {
-        const { data: attendanceData, error: attendanceError } = await supabase
-            .from("attendance")
-            .select("*");
+        const { employee_id, name, department, designation, date } = req.query;
+
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date().toISOString().split("T")[0];
+        const selectedDate = date || today;
+
+        let userQuery = supabase.from("users").select("employee_id, name, designation, department, profilePhoto");
+
+        // Apply filters on users table first
+        if (employee_id) userQuery = userQuery.eq("employee_id", employee_id);
+        if (department) userQuery = userQuery.eq("department", department);
+        if (designation) userQuery = userQuery.eq("designation", designation);
+        if (name) userQuery = userQuery.ilike("name", `%${name}%`); // Case-insensitive search
+
+        const { data: usersData, error: usersError } = await userQuery;
+
+        if (usersError) {
+            console.error("Error fetching users:", usersError);
+            return res.status(500).json({ error: "Error fetching users data." });
+        }
+
+        // Get the employee IDs from the filtered users
+        const employeeIds = usersData.map(user => user.employee_id);
+
+        if (employeeIds.length === 0) {
+            return res.status(200).json([]); // If no users match, return empty response
+        }
+
+        let attendanceQuery = supabase.from("attendance").select("*").eq("date", selectedDate).in("employee_id", employeeIds);
+
+        const { data: attendanceData, error: attendanceError } = await attendanceQuery;
 
         if (attendanceError) {
             console.error("Error fetching attendance:", attendanceError);
-            res.status(500).json({ error: "Internal Server Error" });
-        } else {
-            const employeeIds = attendanceData.map(entry => entry.employee_id);
-            const { data: userData, error: userError } = await supabase
-                .from("users")
-                .select("profilePhoto, employee_id, name, designation, department")
-                .in("employee_id", employeeIds);
-
-            if (userError) {
-                console.error("Error fetching user data:", userError);
-                res.status(500).json({ error: "Internal Server Error" });
-            } else {
-                const attendanceWithUserData = attendanceData.map(attendanceEntry => {
-                    const user = userData.find(userEntry => userEntry.employee_id === attendanceEntry.employee_id);
-                    return { ...attendanceEntry, ...user };
-                });
-                res.status(200).json(attendanceWithUserData);
-            }
+            return res.status(500).json({ error: "Error fetching attendance records." });
         }
+
+        if (!attendanceData || attendanceData.length === 0) {
+            return res.status(200).json([]); // Return empty array if no records found
+        }
+
+        // Merge attendance data with user details
+        const attendanceWithUserData = attendanceData.map(attendanceEntry => {
+            const user = usersData.find(userEntry => userEntry.employee_id === attendanceEntry.employee_id);
+            return { ...attendanceEntry, ...user };
+        });
+
+        res.status(200).json(attendanceWithUserData);
     } catch (error) {
-        console.error("Error fetching attendance:", error);
+        console.error("Unexpected error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
 
 app.get("/api/admin/attendance/:employeeId", async (req, res) => {
     try {
