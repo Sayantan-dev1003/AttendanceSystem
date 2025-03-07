@@ -552,36 +552,66 @@ app.get("/api/attendance", async (req, res) => {
 
 app.get("/api/admin/attendance/:employeeId", async (req, res) => {
     try {
+        const { employeeId } = req.params;
+
+        // Fetch attendance records for the employee
         const { data: attendanceData, error: attendanceError } = await supabase
             .from("attendance")
-            .select("*")
-            .eq("employee_id", req.params.employeeId);
+            .select("date, status")
+            .eq("employee_id", employeeId);
 
         if (attendanceError) {
             console.error("Error fetching attendance:", attendanceError);
-            res.status(500).json({ error: "Internal Server Error" });
-        } else {
-            const { data: userData, error: userError } = await supabase
-                .from("users")
-                .select("name")
-                .eq("employee_id", req.params.employeeId);
-
-            if (userError) {
-                console.error("Error fetching user data:", userError);
-                res.status(500).json({ error: "Internal Server Error" });
-            } else {
-                const attendanceWithUserData = attendanceData.map(attendanceEntry => {
-                    const user = userData[0]; // Assuming there's only one user with the given employee ID
-                    return { ...attendanceEntry, name: user.name };
-                });
-                res.status(200).json(attendanceWithUserData);
-            }
+            return res.status(500).json({ error: "Internal Server Error" });
         }
+
+        // Fetch the user's name
+        const { data: userData, error: userError } = await supabase
+            .from("users")
+            .select("name")
+            .eq("employee_id", employeeId)
+            .single();
+
+        if (userError) {
+            console.error("Error fetching user data:", userError);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+
+        // Get the current month and number of days in it
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let formattedAttendance = [];
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            const dateString = date.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+            const weekday = date.getDay();
+
+            // Default status based on weekends and future dates
+            let status = "Future";
+            if (weekday === 0 || weekday === 6) {
+                status = "Weekend"; // Saturday or Sunday
+            }
+
+            // Find attendance entry for this day
+            const attendanceEntry = attendanceData.find((entry) => entry.date.split("T")[0] === dateString);
+            if (attendanceEntry) {
+                status = attendanceEntry.status; // Use actual recorded status
+            }
+
+            formattedAttendance.push({ date: dateString, status });
+        }
+
+        res.status(200).json({ name: userData.name, attendance: formattedAttendance });
     } catch (error) {
         console.error("Error fetching attendance:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
 
 // User logout
 app.post("/logout", (req, res) => {

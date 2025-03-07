@@ -19,28 +19,30 @@ const UserCalendar = () => {
           },
           credentials: "include",
         });
-
+  
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+  
         const data = await response.json();
         console.log("Fetched Attendance Data:", data);
-        
-        if (response.ok) {
+  
+        if (data.attendance) {
           const attendanceMap = {};
-          data.forEach((entry) => {
-            const correctedDate = new Date(entry.date);
-            const formattedDate = correctedDate.toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" }).split("/").reverse().join("-");
+          data.attendance.forEach((entry) => {
+            const formattedDate = new Date(entry.date).toISOString().split("T")[0]; // Format as YYYY-MM-DD
             attendanceMap[formattedDate] = entry.status;
           });
           setAttendance(attendanceMap);
-        } else {
-          console.error("Error fetching attendance:", data.error);
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error fetching attendance:", error.message);
       }
     };
-
+  
     fetchAttendance();
   }, [employeeId]);
+  
 
   return (
     <Calendar

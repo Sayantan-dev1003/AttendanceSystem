@@ -1,99 +1,88 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; 
 import axios from "axios";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 
 const UserDataTile = () => {
   const { employeeId } = useParams();
-  const [attendance, setAttendance] = useState({
-    Present: 0,
-    Absent: 0,
-    Late: 0,
-  });
-  const [totalWorkingDays, setTotalWorkingDays] = useState(0);
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [userName, setUserName] = useState("");
+  // const [totalDays, setTotalDays] = useState(0);
 
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
+        if (!employeeId) return;
         const response = await axios.get(`/api/admin/attendance/${employeeId}`);
-        const attendanceData = response.data;
-
-        const summary = {
-          Present: attendanceData.filter((item) => item.status === "Present").length,
-          Absent: attendanceData.filter((item) => item.status === "Absent").length,
-          Late: attendanceData.filter((item) => item.status === "Late").length,
-        };
-
-        setAttendance(summary);
+        
+        if (response.data) {
+          setUserName(response.data.name); // Correctly setting user name
+          setAttendanceData(response.data.attendance);
+        }
       } catch (error) {
         console.error("Error fetching attendance data:", error);
       }
     };
 
-    const calculateWorkingDays = () => {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = today.getMonth(); // 0-indexed (0 = January)
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      let workingDays = 0;
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const currentDay = new Date(year, month, day).getDay();
-        if (currentDay !== 0 && currentDay !== 6) {
-          // Excluding Sundays (0) & Saturdays (6)
-          workingDays++;
-        }
-      }
-
-      setTotalWorkingDays(workingDays);
-    };
-
     fetchAttendance();
-    calculateWorkingDays();
   }, [employeeId]);
 
-  const data = [
-    { name: "Present", value: attendance.Present },
-    { name: "Absent", value: attendance.Absent },
-    { name: "Late", value: attendance.Late },
-  ];
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Present":
+        return "#4CAF50"; // Green
+      case "Absent":
+        return "#FF5733"; // Red
+      case "Late":
+        return "#FFC107"; // Yellow
+      case "Weekend":
+        return "#444"; // Dark Gray
+      default:
+        return "#D3D3D3"; // Light Gray (Future Working Days)
+    }
+  };
 
-  const COLORS = ["#4CAF50", "#FF5733", "#FFC107"];
   const monthName = new Date().toLocaleString("default", { month: "long" });
 
-  return (
-    <div className="w-full flex flex-col justify-between items-center bg-white p-4 rounded-xl shadow-md openSans">
-      <h2 className="text-lg font-semibold text-gray-700">
-        Attendance Summary of {monthName}
-      </h2>
-      <div className="w-full flex justify-between items-end">
-        <div className="flex flex-col justify-center items-center">
-          <PieChart width={230} height={230}>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              outerRadius={75}
-              innerRadius={37}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip contentStyle={{ backgroundColor: "#fff", borderRadius: "8px", padding: "8px", border: "none" }} />
-            <Legend align="center" verticalAlign="bottom" layout="horizontal" iconSize={12} wrapperStyle={{ paddingTop: "12px" }} />
-          </PieChart>
-        </div>
+  const legendData = [
+    { name: "Present", color: "#4CAF50" },
+    { name: "Absent", color: "#FF5733" },
+    { name: "Late", color: "#FFC107" },
+    { name: "Weekend", color: "#444" },
+    { name: "Future Working Days", color: "#D3D3D3" },
+  ];
 
-        <div className="mt-4 text-xs text-gray-600 text-right w-full flex flex-col items-end justify-end">
-          <p>Total Working Days: {totalWorkingDays}</p>
-          <p>Present: {attendance.Present} days</p>
-          <p>Absent: {attendance.Absent} days</p>
-          <p>Late: {attendance.Late} days</p>
-        </div>
-      </div>
+  return (
+    <div className="w-full flex flex-col justify-between items-center bg-white p-4 rounded-xl shadow-md">
+      <h2 className="text-lg font-semibold text-gray-700">
+        Attendance Summary for {monthName}
+      </h2>
+      <PieChart width={300} height={300}>
+        <Pie
+          data={attendanceData}
+          cx="50%"
+          cy="50%"
+          outerRadius={80}
+          innerRadius={30}
+          dataKey={() => 1} // Ensures equal distribution
+        >
+          {attendanceData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={getStatusColor(entry.status)} />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend
+          layout="horizontal"
+          align="center"
+          verticalAlign="bottom"
+          iconType="circle"
+          payload={legendData.map((item) => ({
+            value: item.name,
+            type: "circle",
+            color: item.color,
+          }))}
+        />
+      </PieChart>
     </div>
   );
 };
