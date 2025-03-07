@@ -68,13 +68,13 @@ const UserDataTile = () => {
       </h2>
       <div className="w-full flex justify-between items-end">
         <div className="flex flex-col justify-center items-center">
-          <PieChart width={230} height={180}>
+          <PieChart width={230} height={230}>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              outerRadius={60}
-              innerRadius={30}
+              outerRadius={75}
+              innerRadius={37}
               fill="#8884d8"
               dataKey="value"
             >

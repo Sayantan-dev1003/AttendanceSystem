@@ -1,6 +1,6 @@
 /* Custom Calendar Styles */
 .react-calendar {
-    width: 100%;
+    width: 50%;
     background: white;
     padding: 10px;
     border: none;
@@ -57,7 +57,7 @@
 
 /* Date Selection - Smooth Highlighting */
 .react-calendar__tile--active {
-    background: linear-gradient(135deg, #4CAF50, #347936) !important;
+    background: linear-gradient(135deg, #0064a2, #00416A) !important;
     color: white !important;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);

@@ -12,7 +12,8 @@ import requests
 from facenet_pytorch import InceptionResnetV1, MTCNN
 from sklearn.preprocessing import normalize
 
-API_URL = "http://localhost:3000/mark-attendance"  # Change this to your actual API URL
+API_URL = "http://localhost:3000/mark-attendance"
+# RTSP_URL = "rtsp://attendance:admin%40123@:554/Streaming/Channels/101"
 
 # Initialize MTCNN and InceptionResnetV1
 mtcnn = MTCNN(keep_all=True)
@@ -74,6 +75,7 @@ def recognize_faces(known_encodings, known_names, test_encodings, threshold=0.5)
 
 # Start video capture
 cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(RTSP_URL)
 threshold = 0.5  # Adjusted threshold for better classification
 
 seen_names = set()
