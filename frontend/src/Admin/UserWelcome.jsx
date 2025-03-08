@@ -13,7 +13,7 @@ const UserWelcome = () => {
                 console.log("API Response:", response.data);
 
                 if (response.data) {
-                    setName(response.data.name); // Access name from the first attendance entry
+                    setName(response.data[0].name); 
                 } else {
                     console.warn("No attendance data found for this employee.");
                     setName("No Name Found");
