@@ -32,7 +32,11 @@ const UserCalendar = () => {
           const formattedDate = new Date(entry.date).toLocaleDateString("en-GB", {
             timeZone: "Asia/Kolkata",
           });
-          attendanceMap[formattedDate] = entry.status;
+          attendanceMap[formattedDate] = {
+            status: entry.status,
+            checkInTime: entry.check_in_time,
+            checkOutTime: entry.check_out_time,
+          };
         });
 
         setAttendance(attendanceMap);
@@ -50,16 +54,16 @@ const UserCalendar = () => {
       value={date}
       tileClassName={({ date }) => {
         const formattedDate = date.toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" });
-        const status = attendance[formattedDate];
+        const attendanceDetails = attendance[formattedDate];
 
-        return status ? `status-${status.toLowerCase()}` : "";
+        return attendanceDetails ? `status-${attendanceDetails.status.toLowerCase()}` : "";
       }}
       tileContent={({ date }) => {
         const formattedDate = date.toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" });
-        const status = attendance[formattedDate];
+        const attendanceDetails = attendance[formattedDate];
 
-        return status ? (
-          <div className={`attendance-dot dot-${status.toLowerCase()}`} title={status}></div>
+        return attendanceDetails ? (
+          <div className={`attendance-dot dot-${attendanceDetails.status.toLowerCase()}`} title={`Status: ${attendanceDetails.status}\nCheck In Time: ${attendanceDetails.checkInTime}\nCheck Out Time: ${attendanceDetails.checkOutTime}`}></div>
         ) : null;
       }}
     />

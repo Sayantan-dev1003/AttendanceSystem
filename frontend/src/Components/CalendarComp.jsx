@@ -20,13 +20,17 @@ const CalendarComp = () => {
 
         const data = await response.json();
         console.log("Fetched Attendance Data:", data);
-        
+
         if (response.ok) {
           const attendanceMap = {};
           data.forEach((entry) => {
             const correctedDate = new Date(entry.date);
             const formattedDate = correctedDate.toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" }).split("/").reverse().join("-");
-            attendanceMap[formattedDate] = entry.status;
+            attendanceMap[formattedDate] = {
+              status: entry.status,
+              checkInTime: entry.check_in_time,
+              checkOutTime: entry.check_out_time,
+            };
           });
           setAttendance(attendanceMap);
         } else {
@@ -47,18 +51,18 @@ const CalendarComp = () => {
       tileClassName={({ date }) => {
         const dateString = date.toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" }).split("/").reverse().join("-");
         const status = attendance[dateString];
-      
+
         if (status) {
-          return `status-${status.toLowerCase()}`;
+          return `status-${status.status.toLowerCase()}`;
         }
         return "";
       }}
       tileContent={({ date }) => {
         const dateString = date.toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" }).split("/").reverse().join("-");
         const status = attendance[dateString];
-      
+
         return status ? (
-          <div className={`attendance-dot dot-${status.toLowerCase()}`} title={status}></div>
+          <div className={`attendance-dot dot-${status.status.toLowerCase()}`} title={`Status: ${status.status}\nCheck In Time: ${status.checkInTime}\nCheck Out Time: ${status.checkOutTime}`}></div>
         ) : null;
       }}
     />
