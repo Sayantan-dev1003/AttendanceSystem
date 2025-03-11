@@ -19,5 +19,8 @@ A real-time AI-powered face recognition system that automates attendance marking
 ```bash
 git clone https://github.com/Sayantan-dev1003/AttendanceSystem.git
 cd AttendanceSystem
+cd frontend
 npm install
-npm start
+cd backend
+npm install
+nodemon app
