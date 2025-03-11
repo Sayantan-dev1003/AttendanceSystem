@@ -1,5 +1,3 @@
-
-```md
 # Smart Attendance System - AI-Driven Face Recognition
 
 ![Smart Attendance](https://img.shields.io/badge/Tech-OpenCV%20%7C%20Node.js%20%7C%20Supabase-green)
