@@ -189,7 +189,7 @@ app.get("/api/user/profilePhoto", authenticateToken, async (req, res) => {
             .select("profilePhoto")
             .eq("email", email)
             .limit(1);
-        
+
         if (error) {
             console.error("Error fetching profile photo:", error);
             return res.status(500).json({ error: "Internal Server Error" });
@@ -343,10 +343,10 @@ app.post("/mark-attendance", async (req, res) => {
             return res.status(400).json({ error: "User name is required" });
         }
 
-        // ✅ Fetch correct employee_id from users table
+        // Fetch correct employee_id from users table
         const { data: users, error: userError } = await supabase
             .from("users")
-            .select("employee_id, name") // ✅ FIXED: Select correct column
+            .select("employee_id, name")
             .eq("name", name)
             .limit(1);
 
@@ -359,7 +359,7 @@ app.post("/mark-attendance", async (req, res) => {
             return res.status(404).json({ error: "User not found" });
         }
 
-        const employeeId = users[0].employee_id; // ✅ FIXED: Get employee_id
+        const employeeId = users[0].employee_id;
         if (!employeeId) {
             return res.status(400).json({ error: "Employee ID not found" });
         }
@@ -367,7 +367,7 @@ app.post("/mark-attendance", async (req, res) => {
         const currentDate = new Date().toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" }).split("/").reverse().join("-");
         const currentTime = new Date().toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour12: false });
 
-        // ✅ Check if user has already checked in today
+        // Check if user has already checked in today
         const { data: attendance, error: attendanceError } = await supabase
             .from("attendance")
             .select("*")
@@ -388,10 +388,10 @@ app.post("/mark-attendance", async (req, res) => {
         }
 
         if (attendance.length === 0) {
-            // ✅ First check-in: Insert new attendance record
+            // First check-in: Insert new attendance record
             const { error: insertError } = await supabase.from("attendance").insert([
                 {
-                    employee_id: employeeId, // ✅ FIXED: Correct key
+                    employee_id: employeeId,
                     date: currentDate,
                     check_in_time: currentTime,
                     check_out_time: null,
@@ -406,10 +406,10 @@ app.post("/mark-attendance", async (req, res) => {
 
             return res.status(200).json({ message: "Check-in recorded successfully" });
         } else {
-            // ✅ Already checked in: Update check-out time
+            // Already checked in: Update check-out time
             const { error: updateError } = await supabase
                 .from("attendance")
-                .update({ check_out_time: currentTime, status: status })
+                .update({ check_out_time: currentTime })
                 .eq("employee_id", employeeId)
                 .eq("date", currentDate);
 
@@ -425,6 +425,68 @@ app.post("/mark-attendance", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+// Marking absent for employees not present in attendance table for today's date after 2:30pm
+async function markAbsentEmployees() {
+    const currentDate = new Date().toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" }).split("/").reverse().join("-");
+    const currentTime = new Date().toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" });
+    
+    if (currentTime < "14:30:00") {
+        console.log("It's before 2:30pm, not marking absent yet.");
+        return;
+    }
+
+    // Fetching all users with a non-null employee_id from the "users" table
+    const { data: users, error: userError } = await supabase
+        .from("users")
+        .select("employee_id")
+        .not("employee_id", "is", null); // Corrected this line to fetch non-null employee_ids
+
+    console.log("users", users);
+
+    if (userError) {
+        console.error("Error fetching users:", userError);
+        return;
+    }
+
+    for (const user of users) {
+        const { data: attendance, error: attendanceError } = await supabase
+            .from("attendance")
+            .select("*")
+            .eq("employee_id", user.employee_id)
+            .eq("date", currentDate)
+            .limit(1);
+
+        if (attendanceError) {
+            console.error("Error checking attendance for employee ID:", user.employee_id, attendanceError);
+            continue;
+        }
+
+        if (attendance.length === 0) {
+            // Employee not found in attendance table for today, mark as Absent
+            const { error: insertError } = await supabase.from("attendance").insert([
+                {
+                    employee_id: user.employee_id,
+                    date: currentDate,
+                    check_in_time: null,
+                    check_out_time: null,
+                    status: "Absent",
+                },
+            ]);
+
+            if (insertError) {
+                console.error("Error marking employee as Absent:", user.employee_id, insertError);
+            }
+        }
+    }
+}
+// Get the current time in Kolkata/Asia
+const currentTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })).toLocaleTimeString('en-GB', { hour12: false });
+
+// Call the function to mark absent employees only after 2:30pm
+if (currentTime >= "14:30:00") {
+    markAbsentEmployees();
+}
 
 app.get("/api/user/history", authenticateToken, async (req, res) => {
     try {
@@ -472,12 +534,9 @@ app.get("/api/user/attendance", authenticateToken, async (req, res) => {
             res.status(500).json({ error: "Internal Server Error" });
         } else {
             const employeeId = data[0].employee_id;
-            const currentDate = new Date();
-            const fiveDaysAgo = new Date(currentDate.getTime() - 5 * 24 * 60 * 60 * 1000);
             const { data: attendanceData, error: attendanceError } = await supabase
                 .from("attendance")
                 .select("*")
-                .gte("date", fiveDaysAgo.toLocaleDateString("en-US", { timeZone: "Asia/Kolkata" }))
                 .eq("employee_id", employeeId);
 
             if (attendanceError) {
@@ -549,7 +608,6 @@ app.get("/api/attendance", async (req, res) => {
     }
 });
 
-
 app.get("/api/admin/attendance/:employeeId", async (req, res) => {
     try {
         const { data: attendanceData, error: attendanceError } = await supabase
@@ -576,6 +634,24 @@ app.get("/api/admin/attendance/:employeeId", async (req, res) => {
                 });
                 res.status(200).json(attendanceWithUserData);
             }
+        }
+    } catch (error) {
+        console.error("Error fetching attendance:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+app.get("/api/bar/attendance", async (req, res) => {
+    try {
+        const { data: attendanceData, error: attendanceError } = await supabase
+            .from("attendance")
+            .select("check_in_time, check_out_time, status, employee_id, date");
+
+        if (attendanceError) {
+            console.error("Error fetching attendance:", attendanceError);
+            res.status(500).json({ error: "Internal Server Error" });
+        } else {
+            res.status(200).json(attendanceData);
         }
     } catch (error) {
         console.error("Error fetching attendance:", error);

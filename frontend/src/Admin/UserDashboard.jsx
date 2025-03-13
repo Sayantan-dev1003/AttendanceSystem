@@ -3,6 +3,7 @@ import NavBar from '../Components/Navbar';
 import UserWelcome from './UserWelcome';
 import UserDataTile from './UserDataTile';
 import UserCalendar from './UserCalendar';
+import AdminBar from './AdminBar'
 import { useParams } from 'react-router-dom';
 
 const UserDashboard = () => {
@@ -12,7 +13,7 @@ const UserDashboard = () => {
       <div className='w-full h-screen flex'>
         <div className='w-full'>
           <NavBar />
-          <div className='w-full flex justify-start items-start gap-10 px-12'>
+          <div className='w-full flex flex-col justify-start items-start gap-10 px-12'>
             <div className='w-full flex gap-6'>
               <div className='w-1/2 rounded-lg cursor-pointer transition'>
                 <UserWelcome employeeId={employeeId} />
@@ -20,6 +21,7 @@ const UserDashboard = () => {
               </div>
               <UserCalendar employeeId={employeeId} />
             </div>
+            <AdminBar employeeId={employeeId} />
             {/* <div className='w-1/2'>
               <User5DaysHistory employeeId={employeeId} />
             </div> */}

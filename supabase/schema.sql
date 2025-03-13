@@ -15,7 +15,7 @@ CREATE TABLE attendance (
     id SERIAL PRIMARY KEY,  
     employee_id VARCHAR(50) NOT NULL,
     date DATE NOT NULL,
-    check_in_time TIME NOT NULL,
+    check_in_time TIME,
     check_out_time TIME,
     status VARCHAR(10) NOT NULL CHECK (status IN ('Present', 'Absent', 'Late')),
     FOREIGN KEY (employee_id) REFERENCES users(employee_id) ON DELETE CASCADE
