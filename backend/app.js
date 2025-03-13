@@ -442,8 +442,6 @@ async function markAbsentEmployees() {
         .select("employee_id")
         .not("employee_id", "is", null); // Corrected this line to fetch non-null employee_ids
 
-    console.log("users", users);
-
     if (userError) {
         console.error("Error fetching users:", userError);
         return;
