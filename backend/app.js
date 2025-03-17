@@ -523,7 +523,7 @@ app.get("/api/user/attendance", authenticateToken, async (req, res) => {
         const { email } = req.user;
         const { data, error } = await supabase
             .from("users")
-            .select("employee_id")
+            .select("employee_id, name")
             .eq("email", email)
             .limit(1);
 
@@ -664,7 +664,7 @@ app.post("/logout", (req, res) => {
 });
 
 // Catch-all route to serve the frontend
-app.get("*", (req, res) => {
+app.get("*", authenticateToken, (req, res) => {
     res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 

@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const AttendanceBarChart = () => {
+const UserBar = () => {
     const [attendanceData, setAttendanceData] = useState([]);
     const [employeeName, setEmployeeName] = useState("");
     const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ const AttendanceBarChart = () => {
     useEffect(() => {
         const fetchAttendance = async () => {
             try {
-                const response = await fetch(`/api/admin/attendance/${employeeId}`);
+                const response = await fetch("/api/user/attendance");
                 const data = await response.json();
                 if (response.ok) {
                     setAttendanceData(data);
@@ -172,4 +172,4 @@ const AttendanceBarChart = () => {
     );
 };
 
-export default AttendanceBarChart;
+export default UserBar;
