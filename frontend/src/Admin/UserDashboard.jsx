@@ -10,8 +10,8 @@ const UserDashboard = () => {
   const { employeeId } = useParams();
   return (
     <>
-      <div className='w-full h-screen flex'>
-        <div className='w-full'>
+      <div className='w-full flex justify-end items-start'>
+        <div className='w-5/6 min-h-screen flex flex-col overflow-y-auto'>
           <NavBar />
           <div className='w-full flex flex-col justify-start items-start gap-10 px-12'>
             <div className='w-full flex gap-6'>

@@ -11,7 +11,7 @@ const AdminSidebar = () => {
     };
 
     return (
-        <div className="w-1/6 p-2 bg-[#00416A] text-white poppins text-base">
+        <div className="w-1/6 min-h-screen p-2 bg-[#00416A] text-white poppins text-base fixed top-0 left-0 z-10">
             <h2 className="font-bold text-3xl mb-10 montserrat p-2">Logo</h2>
             <ul className='flex flex-col w-full gap-1'>
                 <li onClick={() => handleLinkClick('records')} className={`p-2 cursor-pointer hover:bg-[#0064a2] rounded-md transition ${activeLink === 'records' ? 'active bg-[#0064a2]' : ''}`}>

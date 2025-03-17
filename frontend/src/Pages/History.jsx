@@ -56,55 +56,57 @@ const History = () => {
   };  
 
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-3xl font-bold text-[#00416A] mb-4 montserrat">Attendance History</h2>
+    <div className="w-full flex justify-end items-start">
+      <div className="w-5/6 min-h-screen flex flex-col overflow-y-auto p-8">
+        <h2 className="text-3xl font-bold text-[#00416A] mb-4 montserrat">Attendance History</h2>
 
-      {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
-      ) : error ? (
-        <p className="text-center text-red-500">{error}</p>
-      ) : (
-        <div className="overflow-x-auto openSans rounded-lg">
-          <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-            <thead className="bg-[#00416A] text-white">
-              <tr>
-                <th className="py-3 px-4 text-left">Date</th>
-                <th className="py-3 px-4 text-left">Check-In Time</th>
-                <th className="py-3 px-4 text-left">Check-Out Time</th>
-                <th className="py-3 px-4 text-left">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {attendance.length > 0 ? (
-                attendance.map((entry, index) => (
-                  <tr key={index} className={`border-b border-b-gray-400 hover:bg-gray-100 ${index === attendance.length - 1 ? "border-b-0" : ""}`}>
-                    <td className="py-3 px-4">{formatDate(entry.date)}</td>
-                    <td className="py-3 px-4">{formatTime(entry.check_in_time)}</td>
-                    <td className="py-3 px-4">{entry.check_out_time ? formatTime(entry.check_out_time) : "—"}</td>
-                    <td
-                      className={`py-3 px-4 font-semibold ${
-                        entry.status.toLowerCase() === "present"
-                          ? "text-green-600"
-                          : entry.status.toLowerCase() === "late"
-                          ? "text-yellow-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {entry.status}
+        {loading ? (
+          <p className="text-center text-gray-500">Loading...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : (
+          <div className="overflow-x-auto openSans rounded-lg">
+            <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+              <thead className="bg-[#00416A] text-white">
+                <tr>
+                  <th className="py-3 px-4 text-left">Date</th>
+                  <th className="py-3 px-4 text-left">Check-In Time</th>
+                  <th className="py-3 px-4 text-left">Check-Out Time</th>
+                  <th className="py-3 px-4 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attendance.length > 0 ? (
+                  attendance.map((entry, index) => (
+                    <tr key={index} className={`border-b border-b-gray-400 hover:bg-gray-100 ${index === attendance.length - 1 ? "border-b-0" : ""}`}>
+                      <td className="py-3 px-4">{formatDate(entry.date)}</td>
+                      <td className="py-3 px-4">{formatTime(entry.check_in_time)}</td>
+                      <td className="py-3 px-4">{entry.check_out_time ? formatTime(entry.check_out_time) : "—"}</td>
+                      <td
+                        className={`py-3 px-4 font-semibold ${
+                          entry.status.toLowerCase() === "present"
+                            ? "text-green-600"
+                            : entry.status.toLowerCase() === "late"
+                            ? "text-yellow-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {entry.status}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="text-center py-3 text-gray-500">
+                      No attendance records found.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="text-center py-3 text-gray-500">
-                    No attendance records found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
