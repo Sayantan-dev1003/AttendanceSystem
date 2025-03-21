@@ -606,6 +606,108 @@ app.get("/api/attendance", async (req, res) => {
     }
 });
 
+app.get("/api/attendance/all", async (req, res) => {
+    try {
+        // Fetch all attendance records
+        const { data: attendanceData, error: attendanceError } = await supabase
+            .from("attendance")
+            .select("*");
+
+        if (attendanceError) {
+            console.error("Error fetching attendance data:", attendanceError);
+            return res.status(500).json({ error: "Error fetching attendance records." });
+        }
+
+        // If no records found, return an empty array
+        if (!attendanceData || attendanceData.length === 0) {
+            return res.status(200).json([]); // Return empty array if no records found
+        }
+
+        // Fetch user details for each attendance record
+        const employeeIds = attendanceData.map(entry => entry.employee_id);
+        const { data: usersData, error: usersError } = await supabase
+            .from("users")
+            .select("employee_id, name, department, designation")
+            .in("employee_id", employeeIds);
+
+        if (usersError) {
+            console.error("Error fetching user data:", usersError);
+            return res.status(500).json({ error: "Error fetching user details." });
+        }
+
+        // Merge attendance data with user details
+        const attendanceWithUserData = attendanceData.map(attendanceEntry => {
+            const user = usersData.find(userEntry => userEntry.employee_id === attendanceEntry.employee_id);
+            return { ...attendanceEntry, ...user };
+        });
+
+        // Group data by date
+        const groupedData = attendanceWithUserData.reduce((acc, entry) => {
+            const entryDate = new Date(entry.date).toLocaleDateString(); // Format date as needed
+            if (!acc[entryDate]) {
+                acc[entryDate] = [];
+            }
+            acc[entryDate].push(entry);
+            return acc;
+        }, {});
+
+        // Prepare the response
+        res.status(200).json(groupedData);
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+// Add this endpoint to your existing Express server code
+app.get("/api/attendance/employee/:employeeId", async (req, res) => {
+    try {
+        const { employeeId } = req.params;
+
+        // Fetch attendance records for the specified employee
+        const { data: attendanceData, error: attendanceError } = await supabase
+            .from("attendance")
+            .select("*")
+            .eq("employee_id", employeeId);
+
+        if (attendanceError) {
+            console.error("Error fetching attendance data:", attendanceError);
+            return res.status(500).json({ error: "Error fetching attendance records." });
+        }
+
+        // If no records found, return an empty array
+        if (!attendanceData || attendanceData.length === 0) {
+            return res.status(200).json([]); // Return empty array if no records found
+        }
+
+        // Fetch user details for the specified employee
+        const { data: userData, error: userError } = await supabase
+            .from("users")
+            .select("name")
+            .eq("employee_id", employeeId)
+            .single();
+
+        if (userError) {
+            console.error("Error fetching user data:", userError);
+            return res.status(500).json({ error: "Error fetching user details." });
+        }
+
+        // Prepare the response data
+        const responseData = attendanceData.map(entry => ({
+            employee_id: entry.employee_id,
+            date: entry.date,
+            check_in_time: entry.check_in_time,
+            check_out_time: entry.check_out_time,
+            status: entry.status,
+        }));
+
+        res.status(200).json({ name: userData.name, attendance: responseData });
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 app.get("/api/admin/attendance/:employeeId", async (req, res) => {
     try {
         const { data: attendanceData, error: attendanceError } = await supabase
@@ -664,7 +766,7 @@ app.post("/logout", (req, res) => {
 });
 
 // Catch-all route to serve the frontend
-app.get("*", authenticateToken, (req, res) => {
+app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 

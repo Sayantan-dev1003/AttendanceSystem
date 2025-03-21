@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from 'xlsx';
 
 const AdminRecords = () => {
   const [attendance, setAttendance] = useState([]);
@@ -39,6 +40,37 @@ const AdminRecords = () => {
   const handleSearch = () => {
     if (!searchValue) return fetchAttendance(); // If empty, reset to default
     fetchAttendance({ [searchType]: searchValue });
+  };
+
+  const handleExtractData = async () => {
+    try {
+      const response = await fetch(`/api/attendance/all`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to fetch attendance data.");
+
+      const workbook = XLSX.utils.book_new();
+
+      // Function to sanitize sheet names
+      const sanitizeSheetName = (name) => {
+        return name.replace(/[:\\/?*[\]]/g, '_'); // Replace invalid characters with an underscore
+    };
+
+      // Create a sheet for each date
+      for (const [dateKey, entries] of Object.entries(data)) {
+        const sanitizedDateKey = sanitizeSheetName(dateKey);
+        const worksheet = XLSX.utils.json_to_sheet(entries);
+        XLSX.utils.book_append_sheet(workbook, worksheet, sanitizedDateKey);
+      }
+
+      XLSX.writeFile(workbook, 'AttendanceData.xlsx');
+    } catch (error) {
+      console.error('Error extracting data:', error);
+      alert('Failed to extract data. Please try again.');
+    }
   };
 
   return (
@@ -84,6 +116,8 @@ const AdminRecords = () => {
             >
               Search
             </button>
+
+            <button type="button" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#0064a2] hover:bg-[#00416A] focus:outline-none cursor-pointer" onClick={handleExtractData}>Extract data</button>
           </div>
         </div>
 
@@ -115,8 +149,8 @@ const AdminRecords = () => {
                       onClick={() => navigate(`/userDashboard/${entry.employee_id}`)}
                     >
                       <td className="py-3 px-4 text-center">
-                        <img src={entry.profilePhoto ? `/uploads/${entry.profilePhoto}` : "https://via.placeholder.com/100"} 
-                            alt="Profile" className="w-8 h-8 rounded-full bg-cover text-center" />
+                        <img src={entry.profilePhoto ? `/uploads/${entry.profilePhoto}` : "https://via.placeholder.com/100"}
+                          alt="Profile" className="w-8 h-8 rounded-full bg-cover text-center" />
                       </td>
                       <td className="py-3 px-4 text-center">{entry.employee_id}</td>
                       <td className="py-3 px-4 text-center">{entry.name}</td>
@@ -125,11 +159,10 @@ const AdminRecords = () => {
                       <td className="py-3 px-4 text-center">{entry.date}</td>
                       <td className="py-3 px-4 text-center">{entry.check_in_time || "—"}</td>
                       <td className="py-3 px-4 text-center">{entry.check_out_time || "—"}</td>
-                      <td className={`py-3 px-4 font-semibold text-center ${
-                        entry.status.toLowerCase() === "present" ? "text-green-600"
-                          : entry.status.toLowerCase() === "late" ? "text-yellow-600"
+                      <td className={`py-3 px-4 font-semibold text-center ${entry.status.toLowerCase() === "present" ? "text-green-600"
+                        : entry.status.toLowerCase() === "late" ? "text-yellow-600"
                           : "text-red-600"
-                      }`}>
+                        }`}>
                         {entry.status}
                       </td>
                     </tr>
