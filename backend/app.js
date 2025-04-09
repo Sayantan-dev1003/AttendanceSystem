@@ -43,10 +43,12 @@ if (!fs.existsSync(uploadDir)) {
 // 🔹 Multer Configuration
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, uploadDir); // Store images in uploads folder
+        cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
-        cb(null, req.body.name + path.extname(file.originalname)); // Filename based on user's full name
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+        const ext = path.extname(file.originalname);
+        cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
     }
 });
 const upload = multer({ storage });
@@ -69,38 +71,48 @@ const generateEmployeeId = () => {
 };
 
 // ✅ User registration with Profile Photo Upload
-app.post("/register", upload.single("profilePhoto"), async (req, res) => {
+app.post("/register", upload.array("profilePhotos"), async (req, res) => {
     try {
-        const { name, email, phone, department, designation, password } = req.body;
-        const profilePhoto = req.file ? `${name}${path.extname(req.file.originalname)}` : null; // Uploaded file
+        const { name, email, phone, department, designation, password, employee_id } = req.body;
 
+        // Create a new directory for the employee's profile photos
+        const employeeDir = path.join(uploadDir, name);
+        if (!fs.existsSync(employeeDir)) {
+            fs.mkdirSync(employeeDir, { recursive: true }); // Ensure the directory is created
+        }
+
+        // Store uploaded file names
+        const profilePhotos = req.files.map((file, index) => {
+            const ext = path.extname(file.originalname);
+            const newFileName = `${name}_${index}${ext}`;
+            const newFilePath = path.join(employeeDir, newFileName);
+            fs.renameSync(file.path, newFilePath);
+            return newFileName;
+        });
+        
         // Check if user already exists
-        const { data: existingUser, error: findError } = await supabase
+        const { data: existingUser , error: findError } = await supabase
             .from("users")
             .select("id")
-            .or(`email.eq.${email},phone.eq.${phone}`);
+            .or(`email.eq."${email}",phone.eq."${phone}"`);
 
-        if (existingUser.length > 0) {
-            return res.status(400).json({ error: "User already exists" });
+        if (existingUser .length > 0) {
+            return res.status(400).json({ error: "User  already exists" });
         }
 
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Generate employee ID
-        const employeeId = generateEmployeeId();
-
-        // Insert user into Supabase
         const { error: insertError } = await supabase.from("users").insert([
             {
-                employee_id: employeeId,
+                employee_id: employee_id,
                 name,
                 email,
                 phone,
                 department,
                 designation,
-                profilePhoto: profilePhoto, // Save file name
+                profilePhoto: `{${profilePhotos.join(",")}}`,
                 password: hashedPassword,
                 created_at: new Date(),
             },
@@ -111,7 +123,7 @@ app.post("/register", upload.single("profilePhoto"), async (req, res) => {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ email, employeeId, designation }, process.env.JWT_SECRET);
+        const token = jwt.sign({ email, employee_id, designation }, process.env.JWT_SECRET);
         res.cookie("token", token, { httpOnly: true });
 
         // Pass designation to the frontend
@@ -163,6 +175,7 @@ app.post("/login", async (req, res) => {
 app.get("/api/user/name", authenticateToken, async (req, res) => {
     try {
         const { email } = req.user;
+
         const { data, error } = await supabase
             .from("users")
             .select("name")
@@ -171,15 +184,21 @@ app.get("/api/user/name", authenticateToken, async (req, res) => {
 
         if (error) {
             console.error("Error fetching name:", error);
-            res.status(500).json({ error: "Internal Server Error" });
-        } else {
-            res.status(200).json({ name: data[0].name });
+            return res.status(500).json({ error: "Internal Server Error" });
         }
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json({ name: data[0].name });
+
     } catch (error) {
         console.error("Error fetching name:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
 
 app.get("/api/user/profilePhoto", authenticateToken, async (req, res) => {
     try {

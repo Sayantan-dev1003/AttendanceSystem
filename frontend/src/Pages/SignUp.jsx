@@ -8,7 +8,7 @@ const SignUp = () => {
         phone: "",
         department: "",
         designation: "",
-        profilePhoto: null,
+        profilePhotos: [], // Changed to an array to hold multiple images
         password: ""
     });
     const navigate = useNavigate();
@@ -22,9 +22,11 @@ const SignUp = () => {
     };
 
     const handleFileChange = (e) => {
+        const files = Array.from(e.target.files); // Convert FileList to an array
+        const filesArray = files.map(file => file); // Map each file to an array
         setFormData(prevState => ({
             ...prevState,
-            profilePhoto: e.target.files[0],
+            profilePhotos: filesArray, // Update profilePhoto with the array of files
         }));
     };
 
@@ -34,21 +36,26 @@ const SignUp = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const employeeId = generateEmployeeId();
+        const employee_id = generateEmployeeId();
         const formDataToSend = new FormData();
-
+    
         Object.keys(formData).forEach(key => {
-            formDataToSend.append(key, formData[key]);
+            if (key === 'profilePhotos') {
+                formData[key].forEach((file) => {
+                    formDataToSend.append("profilePhotos", file);
+                });
+            } else {
+                formDataToSend.append(key, formData[key]);
+            }
         });
-        formDataToSend.append("employeeId", employeeId);
-
+        formDataToSend.append("employee_id", employee_id);
+        
         try {
             const response = await fetch("/register", {
                 method: "POST",
-                body: formDataToSend,
+                body: formDataToSend, // Send formDataToSend to the API
             });
-
+    
             if (response.ok) {
                 const data = await response.json();
                 console.log(data.message);
@@ -80,7 +87,7 @@ const SignUp = () => {
                     <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
                     <input type="text" name="department" value={formData.department} onChange={handleChange} placeholder="Department" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
                     <input type="text" name="designation" value={formData.designation} onChange={handleChange} placeholder="Designation" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
-                    <input type="file" name="profilePhoto" onChange={handleFileChange} accept="image/*" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
+                    <input type="file" name="profilePhotos" onChange={handleFileChange} key={formData.profilePhotos.length} accept="image/*" multiple required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
                     <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
                     <button type="submit" className="w-full bg-[#0064a2] text-white rounded-md py-2 hover:bg-[#00416A]">Register</button>
                 </form>

@@ -18,7 +18,6 @@ const NavBar = () => {
                 setName(response.data.name);
                 const photoResponse = await axios.get('/api/user/profilePhoto');
                 setProfilePhoto(photoResponse.data.profilePhoto);
-                console.log(profilePhoto);
             } catch (error) {
                 console.error('Error fetching name or profile photo:', error);
             }
