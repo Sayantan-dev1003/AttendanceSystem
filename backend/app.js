@@ -8,6 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { createClient } from "@supabase/supabase-js";
+import { exec } from "child_process";
 import dotenv from "dotenv";
 import multer from "multer";
 import fs from "fs";
@@ -84,14 +85,14 @@ app.post("/register", upload.array("profilePhotos"), async (req, res) => {
             fs.renameSync(file.path, newFilePath);
             return newFileName;
         });
-        
+
         // Check if user already exists
-        const { data: existingUser , error: findError } = await supabase
+        const { data: existingUser, error: findError } = await supabase
             .from("users")
             .select("id")
             .or(`email.eq."${email}",phone.eq."${phone}"`);
 
-        if (existingUser .length > 0) {
+        if (existingUser.length > 0) {
             return res.status(400).json({ error: "User  already exists" });
         }
 
@@ -123,6 +124,23 @@ app.post("/register", upload.array("profilePhotos"), async (req, res) => {
 
         // Pass designation to the frontend
         res.status(201).json({ message: "Registration Successful", designation: designation });
+
+        // ✅ Trigger embeddings generation (keep this code AFTER successful registration)
+        const scriptPath = path.join(__dirname, "../flaskServer/createEmbeddings.py");
+        const uploadFolder = path.join(__dirname, "uploads", name);
+
+        const command = `python "${scriptPath}" "${uploadFolder}"`;
+
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`[Embedding Error]: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`[Embedding stderr]: ${stderr}`);
+            }
+            console.log(`[Embeddings Log]: ${stdout}`);
+        });
     } catch (error) {
         console.error("Error in registration", error);
         res.status(500).json({ error: "Internal Server Error" });
@@ -444,7 +462,7 @@ app.post("/mark-attendance", async (req, res) => {
 async function markAbsentEmployees() {
     const currentDate = new Date().toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" }).split("/").reverse().join("-");
     const currentTime = new Date().toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" });
-    
+
     if (currentTime < "14:30:00") {
         console.log("It's before 2:30pm, not marking absent yet.");
         return;
