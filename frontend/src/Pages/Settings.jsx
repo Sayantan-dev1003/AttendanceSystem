@@ -1,5 +1,3 @@
-import { faPencil } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +9,7 @@ const Settings = () => {
   const [phone, setPhone] = useState("");
   const [department, setDepartment] = useState("");
   const [designation, setDesignation] = useState("");
-  const [profilePic, setProfilePic] = useState(null);
+  const [profilePic, setProfilePic] = useState([]);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
@@ -35,30 +33,6 @@ const Settings = () => {
 
     fetchData();
   }, []);
-
-  const handleProfilePicChange = (event) => {
-    const file = event.target.files[0];
-
-    if (file) {
-        const formData = new FormData();
-        formData.append("profilePhoto", file);
-
-        axios.post("/api/updateProfilePhoto", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
-        .then(response => {
-            console.log("Profile picture updated successfully:", response.data);
-            alert("Profile picture updated successfully!");
-        })
-        .catch(error => {
-            console.error("Error updating profile picture:", error);
-            alert("Failed to update profile picture.");
-        });
-    }
-};
-
 
   const handleSaveChanges = () => {
     const updateData = { name, phone };
@@ -91,6 +65,11 @@ const Settings = () => {
       });
   };
 
+  const extractNameFromImage = (imageName) => {
+    if (!imageName) return '';
+    return imageName.split('_')[0];
+  };
+
   return (
     <div className="w-full flex justify-end items-start">
       <div className="w-5/6 min-h-screen flex flex-col overflow-y-auto p-8">
@@ -99,15 +78,7 @@ const Settings = () => {
         <div className="flex gap-10 items-end w-full justify-between bg-[#daf1ff] rounded-2xl p-4 mb-10 shadow-lg">
           <div className="flex gap-10 items-center w-full justify-start">
             <div>
-              <img
-                src={profilePic ? `/uploads/${profilePic}` : "https://via.placeholder.com/100"}
-                alt="Profile"
-                className="w-28 h-28 rounded-full mb-2 shadow"
-              />
-              <div className="text-sm relative">
-                <FontAwesomeIcon icon={faPencil} className="bg-[#0064a2] hover:bg-[#00416A] p-2.5 rounded-full text-white absolute bottom-1 left-20 shadow-md hover:transition hover:scale-105 cursor-pointer" onClick={() => document.getElementById('profilePicInput').click()} />
-                <input id="profilePicInput" type="file" onChange={handleProfilePicChange} className="hidden" />
-              </div>
+              {profilePic.length > 0 && <img src={`/uploads/${extractNameFromImage(profilePic[0])}/${profilePic[0]}`} alt="Profile" className="w-28 h-28 rounded-full mb-2 shadow" />}
             </div>
             <div className="poppins">
               <p className="text-3xl font-semibold">{name} <span className="text-xs italic font-light text-gray-500">{designation}</span></p>

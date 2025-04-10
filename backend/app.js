@@ -65,11 +65,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Generate Employee ID
-const generateEmployeeId = () => {
-    return `EMP-${Date.now()}`;
-};
-
 // ✅ User registration with Profile Photo Upload
 app.post("/register", upload.array("profilePhotos"), async (req, res) => {
     try {
