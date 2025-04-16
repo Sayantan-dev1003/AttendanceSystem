@@ -8,7 +8,7 @@ const SignUp = () => {
         phone: "",
         department: "",
         designation: "",
-        profilePhotos: [], // Changed to an array to hold multiple images
+        profilePhotos: [],
         password: ""
     });
     const navigate = useNavigate();
@@ -22,12 +22,13 @@ const SignUp = () => {
     };
 
     const handleFileChange = (e) => {
-        const files = Array.from(e.target.files); // Convert FileList to an array
-        const filesArray = files.map(file => file); // Map each file to an array
-        setFormData(prevState => ({
-            ...prevState,
-            profilePhotos: filesArray, // Update profilePhoto with the array of files
-        }));
+        const files = Array.from(e.target.files);
+        if (files.length > 0 && formData.profilePhotos.length === 0) {
+            setFormData(prevState => ({
+                ...prevState,
+                profilePhotos: files,
+            }));
+        }
     };
 
     const generateEmployeeId = () => {
@@ -38,7 +39,7 @@ const SignUp = () => {
         e.preventDefault();
         const employee_id = generateEmployeeId();
         const formDataToSend = new FormData();
-    
+
         Object.keys(formData).forEach(key => {
             if (key === 'profilePhotos') {
                 formData[key].forEach((file) => {
@@ -49,13 +50,13 @@ const SignUp = () => {
             }
         });
         formDataToSend.append("employee_id", employee_id);
-        
+
         try {
             const response = await fetch("/register", {
                 method: "POST",
-                body: formDataToSend, // Send formDataToSend to the API
+                body: formDataToSend,
             });
-    
+
             if (response.ok) {
                 const data = await response.json();
                 console.log(data.message);
@@ -82,13 +83,21 @@ const SignUp = () => {
                     Sign Up
                 </h1>
                 <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 openSans">
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
-                    <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
-                    <input type="text" name="department" value={formData.department} onChange={handleChange} placeholder="Department" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
-                    <input type="text" name="designation" value={formData.designation} onChange={handleChange} placeholder="Designation" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
-                    <input type="file" name="profilePhotos" onChange={handleFileChange} key={formData.profilePhotos.length} accept="image/*" multiple required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
-                    <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700" />
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#00416A] focus:border-[#00416A]" />
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#00416A] focus:border-[#00416A]" />
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#00416A] focus:border-[#00416A]" />
+                    <input type="text" name="department" value={formData.department} onChange={handleChange} placeholder="Department" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#00416A] focus:border-[#00416A]" />
+                    <input type="text" name="designation" value={formData.designation} onChange={handleChange} placeholder="Designation" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#00416A] focus:border-[#00416A]" />
+                    {formData.profilePhotos.length === 0 ? (
+                        <input type="file" name="profilePhotos" onChange={handleFileChange} accept="image/*" multiple required className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#00416A] focus:border-[#00416A]"
+                        />
+                    ) : (
+                        <div className="w-full border border-[#00416A] text-[#0064a2] rounded-md p-2 text-left">
+                            Images uploaded ✅
+                        </div>
+                    )}
+
+                    <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#00416A] focus:border-[#00416A]" />
                     <button type="submit" className="w-full bg-[#0064a2] text-white rounded-md py-2 hover:bg-[#00416A]">Register</button>
                 </form>
             </div>

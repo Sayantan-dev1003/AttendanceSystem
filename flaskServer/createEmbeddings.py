@@ -97,8 +97,6 @@ def generate_embeddings(person_folder):
 
     if embeddings:
         df = pd.DataFrame(embeddings)
-        folder_name = os.path.basename(person_folder.rstrip('/\\'))
-        df.insert(0, folder_name, [''] * len(embeddings))
         csv_path = os.path.join(person_folder, 'embeddings.csv')
         df.to_csv(csv_path, index=False)
         print(f"[SUCCESS] Embeddings saved to {csv_path}")

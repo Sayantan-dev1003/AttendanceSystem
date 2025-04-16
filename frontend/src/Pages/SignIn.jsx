@@ -59,7 +59,7 @@ const SignIn = () => {
                             onChange={handleChange}
                             placeholder="Enter email address"
                             required
-                            className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700"
+                            className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#00416A] focus:border-[#00416A]"
                         />
                     </div>
 
@@ -71,7 +71,7 @@ const SignIn = () => {
                             onChange={handleChange}
                             placeholder="Enter password"
                             required
-                            className="w-full border border-gray-300 rounded-md p-2 focus:ring-green-700 focus:border-green-700"
+                            className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#00416A] focus:border-[#00416A]"
                         />
                     </div>
 
