@@ -30,20 +30,55 @@ git clone https://github.com/Sayantan-dev1003/AttendanceSystem.git
 ```
 
 ### 2. **Navigate to Project Directory**
-
 Once the repository is cloned, change your working directory to the project folder:
-
 ```bash
 cd AttendanceSystem
 ```
 
-### 2. **Set Up Frontend**
-
+### 3. **Set Up Frontend**
 Navigate to the frontend folder where the React application is located:
-
 ```bash
 cd frontend
 ```
+Install all necessary dependencies for the frontend:
+```bash
+npm install
+```
+
+### 4. **Set Up Backend (Node.js)**
+Open a new terminal window and navigate to the backend directory:
+```bash
+cd backend
+```
+Install all necessary dependencies for the backend:
+```bash
+npm install
+```
+
+### 5. **Run the Backend**
+To start the backend server, use nodemon (which automatically restarts the server when code changes):
+```bash
+nodemon app
+```
+This will start the Node.js backend on the specified port (usually http://localhost:3000).
+
+### 6. **Set Up Flask Server (AI Model)**
+Open another new terminal window and navigate to the flaskserver folder, which contains the Python Flask application used for the AI model:
+```bash
+cd flaskserver
+```
+Install the required Python dependencies using pip:
+```bash
+pip install -r requirements.txt
+```
+This will install all necessary Python packages for running the AI model (e.g., OpenCV, TensorFlow, etc.).
+
+### 7. **Run Flask Server**
+To start the Flask server, use the following command:
+```bash
+python faceRecognition.py
+```
+This will start the Flask server that handles the face recognition and model predictions.
 
 ![Image](https://github.com/user-attachments/assets/a0a12ee9-c94e-4c50-9e70-c16acec026d3)
 ![Image](https://github.com/user-attachments/assets/3c133a71-b5ac-438d-9412-e9986a864dda)
