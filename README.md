@@ -1,6 +1,6 @@
 # Smart Attendance System - AI-Driven Face Recognition
 
-![Tech Stack](https://img.shields.io/badge/Tech%20Stack-Frontend%3A%20React.js%20%7C%20Chart.js%20%7C%20Tailwind%20CSS%20%7C%20Axios%20--Backend%3A%20Node.js%20%7C%20Express.js%20%7C%20Supabase%20%7C%20JWT%20%2F%20Bcrypt-brightgreen)
+![Frontend + Backend](https://img.shields.io/badge/Tech%20Stack-Frontend%3A%20React.js%20%7C%20Chart.js%20%7C%20Tailwind%20CSS%20%7C%20Axios%20--Backend%3A%20Node.js%20%7C%20Express.js%20%7C%20Supabase%20%7C%20JWT%20%2F%20Bcrypt-brightgreen)
 ![AI/ML Stack](https://img.shields.io/badge/AI%2FML-OpenCV%20%7C%20MTCNN%20%7C%20InceptionResnetV1%20%7C%20Scikit--learn%20%7C%20NumPy-blue)
 
 ## 📌 Overview
