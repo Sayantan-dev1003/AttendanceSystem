@@ -24,11 +24,25 @@ The Smart Attendance System is an AI-powered face recognition solution designed 
 Follow the steps below to clone, install dependencies, and run the project locally. Make sure you have **Node.js**, **npm**, and **Python** installed on your machine.
 
 ### 1. **Clone the Repository**
-
 Start by cloning the repository to your local machine:
-
 ```bash
 git clone https://github.com/Sayantan-dev1003/AttendanceSystem.git
+```
+
+### 2. **Navigate to Project Directory**
+
+Once the repository is cloned, change your working directory to the project folder:
+
+```bash
+cd AttendanceSystem
+```
+
+### 2. **Set Up Frontend**
+
+Navigate to the frontend folder where the React application is located:
+
+```bash
+cd frontend
 ```
 
 ![Image](https://github.com/user-attachments/assets/a0a12ee9-c94e-4c50-9e70-c16acec026d3)
