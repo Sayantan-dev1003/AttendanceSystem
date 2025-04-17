@@ -1,8 +1,6 @@
 # Smart Attendance System - AI-Driven Face Recognition
 
-![Tech Stack](https://img.shields.io/badge/Frontend-React.js%20%7C%20Chart.js%20%7C%20Tailwind%20CSS%20%7C%20Axios-blue)<br>
-![Tech Stack](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express.js%20%7C%20Supabase%20%7C%20JWT%20%7C%20Bcrypt-brightgreen)<br>
-![Tech Stack](https://img.shields.io/badge/AI%2FML-OpenCV%20%7C%20MTCNN%20%7C%20InceptionResnetV1%20%7C%20Scikit-learn%20%7C%20NumPy-purple)
+![Tech Stack](https://img.shields.io/badge/Tech%20Stack-Frontend%3A%20React.js%20%7C%20Chart.js%20%7C%20Tailwind%20CSS%20%7C%20Axios%20%7C%20Backend%3A%20Node.js%20%7C%20Express.js%20%7C%20Supabase%20%7C%20JWT%2FBcrypt%20%7C%20AI%2FML%3A%20OpenCV%20%7C%20MTCNN%20%7C%20InceptionResnetV1%20%7C%20Scikit-learn%20%7C%20NumPy-blue)
 
 ## 📌 Overview
 The Smart Attendance System is an AI-powered face recognition solution designed to automate and streamline attendance marking in real-time. Leveraging the power of deep learning models like MTCNN for face detection and InceptionResnetV1 for face recognition, the system achieves over 99% accuracy with sub-200ms latency. Integrated with IP cameras, it ensures seamless tracking without manual intervention. The platform features a dynamic React.js dashboard, backed by Node.js and Supabase, providing administrators with insightful analytics, attendance logs, and real-time data visualization. This project blends machine learning, computer vision, and full-stack web development to solve a real-world problem efficiently and intelligently.
